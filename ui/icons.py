@@ -1,3 +1,5 @@
+# ui/icons.py
+
 from PIL import Image, ImageDraw
 
 def create_icon(state="idle"):

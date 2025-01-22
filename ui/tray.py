@@ -1,66 +1,49 @@
+# ui/tray.py
+
 import pystray
 from pystray import MenuItem as item, Icon
 import threading
 import time
 from ui.icons import create_icon
-from ui.handlers import (
-    record_action,
-    stop_record_action,
-    transcribe_action,
-    assign_speakers_action,
-    summarize_action,
-    retry_summarization_action,
-    export_action
-)
+from ui.updater import update_tray_icon  # Updater handles tray updates
 
-is_recording = False  # UI flag for recording state
-tray_icon = None  # Store tray icon reference
+class TrayApp:
+    def __init__(self):
+        self.is_recording = False
+        self.tray_icon = Icon("MeetingRecorder", create_icon("idle"), menu=self.build_menu())
 
-def build_menu():
-    """Dynamically builds the menu based on recording status."""
-    if is_recording:
+    def build_menu(self):
+        """Dynamically builds the menu based on recording status."""
+        from ui.handlers import get_menu_actions  # Import only inside function to prevent circular import
+        menu_actions = get_menu_actions(self)  # Pass `TrayApp` instance to handlers
+
         return pystray.Menu(
-            item('⏹ Stop Recording', stop_record_action)
-        )
-    else:
-        return pystray.Menu(
-            item('🔴 Start Recording', record_action),
-            item('📝 Transcribe Meeting', transcribe_action),
-            item('👤 Assign Speaker Names', assign_speakers_action),
-            item('🤖 Generate Summary', summarize_action),
-            item('🔄 Retry Failed Summaries', retry_summarization_action),
-            item('📤 Export Summary', export_action),
-            item('❌ Exit', exit_action)
+            *[item(label, action) for label, action in menu_actions if action is not None]
         )
 
-def exit_action(icon, item):
-    """Stops the tray application."""
-    icon.stop()
+    def start_recording(self, icon, item):
+        """Handles the action to start recording."""
+        print("🎤 Recording started...")
+        self.is_recording = True
+        update_tray_icon(self, "recording")
 
-def update_tray_icon(state):
-    """Updates the tray icon and menu dynamically."""
-    global tray_icon, is_recording
-    is_recording = (state == "recording")
+    def stop_recording(self, icon, item):
+        """Handles the action to stop recording."""
+        print("⏹ Recording stopped.")
+        self.is_recording = False
+        update_tray_icon(self, "idle")
 
-    # Change icon color based on state
-    tray_icon.icon = create_icon("recording" if is_recording else "idle")
+    def exit_app(self, icon, item):
+        """Stops the tray application."""
+        icon.stop()
 
-    # Update menu options
-    tray_icon.menu = build_menu()
-
-    # Refresh the tray UI
-    tray_icon.visible = False
-    tray_icon.visible = True
-    print(f"✅ Tray UI updated: {'Recording' if is_recording else 'Idle'}.")
+    def run(self):
+        """Starts the tray icon."""
+        self.tray_icon.run()
 
 def start_ui():
-    """Launches the system tray UI immediately and allows dynamic updates."""
-    global tray_icon
-    tray_icon = Icon("MeetingRecorder", create_icon("idle"), menu=build_menu())
-
-    # Start the tray UI in a separate thread
-    tray_thread = threading.Thread(target=tray_icon.run, daemon=True)
+    """Launches the system tray UI."""
+    app = TrayApp()
+    tray_thread = threading.Thread(target=app.run, daemon=True)
     tray_thread.start()
-
-    # Keep the main thread alive
     tray_thread.join()

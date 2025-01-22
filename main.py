@@ -1,10 +1,12 @@
+# main.py
+
 import subprocess
 import sys
 
-# 🚀 Ensure the environment is set up (including activation)
+# Run the environment setup script
 subprocess.check_call([sys.executable, "setup_environment.py"])
 
-# 🚀 Start the application
+# Import and start the tray UI
 from ui.tray import start_ui
 
 def main():
