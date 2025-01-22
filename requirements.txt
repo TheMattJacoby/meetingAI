@@ -1,0 +1,4 @@
+sounddevice
+whisper
+openai
+python-docx
