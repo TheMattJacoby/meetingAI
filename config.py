@@ -1,7 +1,7 @@
 import os
 
 # 🚀 LLM Configuration (Choose Local or External API)
-USE_EXTERNAL_LLM = True  # Toggle between local and cloud-based LLMs
+USE_EXTERNAL_LLM = False  # Toggle between local and cloud-based LLMs
 EXTERNAL_LLM_PROVIDER = "openai"  # Options: "openai", "claude", "gemini", "mistral"
 
 # 🔍 API Keys (Set these in environment variables for security)

@@ -1,10 +1,15 @@
-from recorder import start_recording
-from transcriber import transcribe_audio
-from llm_analysis import generate_summary
-from ui import start_ui
+import subprocess
+import sys
+
+# 🚀 Ensure the environment is set up (including activation)
+subprocess.check_call([sys.executable, "setup_environment.py"])
+
+# 🚀 Start the application
+from ui.tray import start_ui
 
 def main():
-    start_ui()  # Launch system tray UI
+    """Starts the system tray UI."""
+    start_ui()
 
 if __name__ == "__main__":
     main()
